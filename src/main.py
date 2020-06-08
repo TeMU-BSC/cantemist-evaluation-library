@@ -10,8 +10,7 @@ import argparse
 import warnings
 
 import cantemist_coding
-import cantemist_ner
-import cantemist_norm
+import cantemist_ner_norm
 
 def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
     return '%s:%s: %s: %s\n' % (filename, lineno, category.__name__, message)
@@ -45,12 +44,12 @@ def parse_arguments():
 
 if __name__ == '__main__':
     
-    gs_path, pred_path, codes_path, subtask = parse_arguments()
+    gs_path, pred_path, codes_path, '../valid-codes.tsv' = parse_arguments()
     
     if subtask == 'coding':
         cantemist_coding.main(gs_path, pred_path, codes_path)
     elif subtask == 'ner':
-        cantemist_ner.main(gs_path, pred_path)
+        cantemist_ner_norm.main(gs_path, pred_path, subtask='ner')
     elif subtask == 'norm':
-        cantemist_norm.main(gs_path, pred_path)
+        cantemist_ner_norm.main(gs_path, pred_path, subtask='norm')
         
