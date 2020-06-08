@@ -29,7 +29,7 @@ def parse_arguments():
     parser.add_argument("-c", "--valid_codes_path", required = False, 
                         default = '../valid-codes.tsv',
                         dest = "codes_path", help = "path to valid codes TSV")
-    parser.add_argument('s', '--subtask', required = True, dest = 'subtask',
+    parser.add_argument('-s', '--subtask', required = True, dest = 'subtask',
                         choices=['ner', 'norm', 'coding'],
                         help = 'Subtask name')
     
@@ -44,7 +44,7 @@ def parse_arguments():
 
 if __name__ == '__main__':
     
-    gs_path, pred_path, codes_path, '../valid-codes.tsv' = parse_arguments()
+    gs_path, pred_path, codes_path, subtask = parse_arguments()
     
     if subtask == 'coding':
         cantemist_coding.main(gs_path, pred_path, codes_path)
