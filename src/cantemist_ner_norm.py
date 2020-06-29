@@ -8,6 +8,12 @@ Created on Mon Jun 8 15:22:29 2020
 
 import pandas as pd
 import ann_parsing
+import warnings
+
+def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
+    return '%s:%s: %s: %s\n' % (filename, lineno, category.__name__, message)
+warnings.formatwarning = warning_on_one_line
+
 
 def main(gs_path, pred_path, subtask=['ner','norm']):
     '''
@@ -122,6 +128,12 @@ def calculate_metrics(gs, pred, subtask=['ner','norm']):
         pred.drop_duplicates(subset=['clinical_case', "offset"]).\
         groupby("clinical_case")["offset"].count()
     Pred_Pos = pred.drop_duplicates(subset=['clinical_case', "offset"]).shape[0]
+    '''
+    Pred_Pos_per_cc = \
+        pred.drop_duplicates(subset=pred.columns.difference(['mark'])).\
+        groupby("clinical_case")["offset"].count() ---> ¿?¿?¿?
+    Pred_Pos = pred.drop_duplicates(subset=pred.columns.difference(['mark'])).shape[0]
+    '''
     
     # Gold Standard Positives:
     GS_Pos_per_cc = \
@@ -140,7 +152,8 @@ def calculate_metrics(gs, pred, subtask=['ner','norm']):
         df_sel["is_valid"] = \
             df_sel.apply(lambda x: (x["code_gs"] == x["code_pred"]), axis=1)
     elif subtask=='ner':
-        df_sel["is_valid"] = True
+        is_valid = df_sel.apply(lambda x: x.isnull().any()==False, axis=1)
+        df_sel = df_sel.assign(is_valid=is_valid.values)
     else:
         raise Exception('Error! Subtask name not properly set up')
     
