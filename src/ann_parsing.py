@@ -139,4 +139,4 @@ def main(datapath, relevant_labels, with_notes=False):
     df = parse_ann(datapath, relevant_labels, with_notes)
     df_ok = format_df(df)
     
-    return df
+    return df_ok
