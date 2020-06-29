@@ -15,16 +15,16 @@ def parse_ann(datapath, relevant_labels, with_notes=False):
     
     Parameters
     ----------
-    datapath: str. 
+    datapath : str. 
         Route to the folder where the files are. 
-    relevant_labels: list
+    relevant_labels : list
         List of labels we parse
-    with_notes: bool
-        Whether to take into account AnnotatorNotes or not
+    with_notes : bool
+        whether to take into account AnnotatorNotes or not (Brat comments)
            
     Returns
     -------
-    df: pandas DataFrame 
+    df : pandas DataFrame 
         It has information from ann files. Columns: filename',
         'mark', 'label', 'offset', span' and (if with_notes=True) 'code'
     
@@ -54,14 +54,27 @@ def parse_ann(datapath, relevant_labels, with_notes=False):
 def parse_one_ann(info, root, filename, relevant_labels, ignore_related=False,
                   with_notes=False):
     '''
-    Parse information in one .ann file.
+    Parse information in one ANN file.
     
     Parameters
     ----------
+    info : list
+        it contains parsed ANN information. One element per ANN annotation
+    root : str
+        route to parent directory where ANN file is stored
+    filename : str
+        ANN file name
+    relevant_labels : list
+        ANN labels I will parse
+    ignore_related : bool
+        whether to ignore annotations included in a Brat relation
+    with_notes : bool
+        whether to take into account AnnotatorNotes or not (Brat comments)
            
     Returns
     -------
-    info: list
+    info : list
+        it contains parsed ANN information. One element per ANN annotation
     
     '''
     
@@ -128,6 +141,11 @@ def parse_one_ann(info, root, filename, relevant_labels, ignore_related=False,
 
 
 def format_df(df):
+    '''
+    Divide offset column into two: starting and ending annotation positions.
+    
+    '''
+    
     df[['offset0','offset1']] = df['offset'].str.split(' ', n=1, expand=True)
     df['offset0'] = df['offset0'].astype("int")
     df['offset1'] = df['offset1'].astype("int")

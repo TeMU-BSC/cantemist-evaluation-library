@@ -26,6 +26,8 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
         Path to directory with GS .ANN files (Brat format).
     pred_path : str
         Path to directory with Predicted .ANN files (Brat format).
+    subtask : str
+        Subtask name
 
     Returns
     -------
@@ -97,30 +99,31 @@ def calculate_metrics(gs, pred, subtask=['ner','norm']):
     Calculate task Coding metrics:
     
     Two type of metrics are calculated: per document and micro-average.
-    In case a code has several references, just acknowledging one is enough.
-    In case of discontinuous references, the reference is considered to 
-    start and the start position of the first part of the reference and to 
-    end at the final position of the last part of the reference.
+    It is assumed there are not completely overlapping annotations.
     
-    INPUT: 
-        gs: pandas dataframe
-            with the Gold Standard. Columns are those output by the function read_gs.
-        pred: pandas dataframe
-            with the predictions. Columns are those output by the function read_run.
+    Parameters
+    ---------- 
+    gs : pandas dataframe
+        with the Gold Standard. Columns are those defined in main function.
+    pred : pandas dataframe
+        with the predictions. Columns are those defined in main function.
+    subtask : str
+        subtask name
     
-    OUTPUT: 
-        P_per_cc: pandas series
-            Precision per clinical case (index contains clinical case names)
-        P: float
-            Micro-average precision
-        R_per_cc: pandas series
-            Recall per clinical case (index contains clinical case names)
-        R: float
-            Micro-average recall
-        F1_per_cc: pandas series
-            F-score per clinical case (index contains clinical case names)
-        F1: float
-            Micro-average F-score
+    Returns
+    -------
+    P_per_cc : pandas series
+        Precision per clinical case (index contains clinical case names)
+    P : float
+        Micro-average precision
+    R_per_cc : pandas series
+        Recall per clinical case (index contains clinical case names)
+    R : float
+        Micro-average recall
+    F1_per_cc : pandas series
+        F-score per clinical case (index contains clinical case names)
+    F1 : float
+        Micro-average F1-score
     '''
     
     # Predicted Positives:
@@ -128,13 +131,7 @@ def calculate_metrics(gs, pred, subtask=['ner','norm']):
         pred.drop_duplicates(subset=['clinical_case', "offset"]).\
         groupby("clinical_case")["offset"].count()
     Pred_Pos = pred.drop_duplicates(subset=['clinical_case', "offset"]).shape[0]
-    '''
-    Pred_Pos_per_cc = \
-        pred.drop_duplicates(subset=pred.columns.difference(['mark'])).\
-        groupby("clinical_case")["offset"].count() ---> ¿?¿?¿?
-    Pred_Pos = pred.drop_duplicates(subset=pred.columns.difference(['mark'])).shape[0]
-    '''
-    
+
     # Gold Standard Positives:
     GS_Pos_per_cc = \
         gs.drop_duplicates(subset=['clinical_case', "offset"]).\
