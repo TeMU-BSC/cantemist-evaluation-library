@@ -8,6 +8,11 @@ Created on Mon Jun  8 12:20:04 2020
 
 import os
 import pandas as pd
+import warnings
+
+def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
+    return '%s:%s: %s: %s\n' % (filename, lineno, category.__name__, message)
+warnings.formatwarning = warning_on_one_line
 
 def parse_ann(datapath, relevant_labels, with_notes=False):
     '''
@@ -155,6 +160,9 @@ def format_df(df):
 def main(datapath, relevant_labels, with_notes=False):
     
     df = parse_ann(datapath, relevant_labels, with_notes)
+    if df.shape[0] == 0:
+        warnings.warn('There are not parsed annotations')
+        return df
     df_ok = format_df(df)
     
     return df_ok

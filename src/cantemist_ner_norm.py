@@ -37,6 +37,12 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     if subtask=='norm':
         gs = ann_parsing.main(gs_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=True)
         pred = ann_parsing.main(pred_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=True)
+        
+        if pred.shape[0] == 0:
+            raise Exception('There are not parsed predicted annotations')
+        elif gs.shape[0] == 0:
+            raise Exception('There are not parsed Gold Standard annotations')
+        
         gs.columns = ['clinical_case', 'mark', 'label', 'offset', 'span', 'code_gs',
                       'start_pos_gs', 'end_pos_gs']
         pred.columns = ['clinical_case', 'mark', 'label', 'offset', 'span', 'code_pred',
@@ -44,6 +50,12 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     elif subtask=='ner':
         gs = ann_parsing.main(gs_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=False)
         pred = ann_parsing.main(pred_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=False)
+        
+        if pred.shape[0] == 0:
+            raise Exception('There are not parsed predicted annotations')
+        elif gs.shape[0] == 0:
+            raise Exception('There are not parsed Gold Standard annotations')
+        
         gs.columns = ['clinical_case', 'mark', 'label', 'offset', 'span', 
                       'start_pos_gs', 'end_pos_gs']
         pred.columns = ['clinical_case', 'mark', 'label', 'offset', 'span',
@@ -191,5 +203,9 @@ def calculate_metrics(gs, pred, subtask=['ner','norm']):
         warnings.warn('Global F1 score automatically set to zero to avoid division by zero')
         return P_per_cc, P, R_per_cc, R, F1_per_cc, F1
     F1 = (2 * P * R) / (P + R)
+    
+    
+    if ((any(F1, P, R) > 1) | any(F1_per_cc>1) | any(P_per_cc>1) | any(R_per_cc>1) ):
+        warnings.warn('Metric greater than 1! You have encountered an undetected bug, please, contact antonio.miranda@bsc.es!')
                                             
     return P_per_cc, P, R_per_cc, R, F1_per_cc, F1
