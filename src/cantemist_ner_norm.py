@@ -78,7 +78,7 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
         warnings.warn('Some documents do not have predicted codes, ' + 
                       'document-wise Precision not computed for them.')
         
-    print('\nMicro-average precision = {}\n'.format(round(P, 3)))
+    
     
     print('\n-----------------------------------------------------')
     print('Clinical case name\t\t\tRecall')
@@ -89,7 +89,7 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     if any(R_per_cc.isna()):
         warnings.warn('Some documents do not have Gold Standard codes, ' + 
                       'document-wise Recall not computed for them.')
-    print('\nMicro-average recall = {}\n'.format(round(R, 3)))
+    
     
     print('\n-----------------------------------------------------')
     print('Clinical case name\t\t\tF-score')
@@ -103,6 +103,12 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     if any(R_per_cc.isna()):
         warnings.warn('Some documents do not have Gold Standard codes, ' + 
                       'document-wise F-score not computed for them.')
+        
+    print('\n-----------------------------------------------------')
+    print('Micro-average metrics')
+    print('-----------------------------------------------------')
+    print('\nMicro-average precision = {}\n'.format(round(P, 3)))
+    print('\nMicro-average recall = {}\n'.format(round(R, 3)))
     print('\nMicro-average F-score = {}\n'.format(round(F1, 3)))
 
 
@@ -205,7 +211,7 @@ def calculate_metrics(gs, pred, subtask=['ner','norm']):
     F1 = (2 * P * R) / (P + R)
     
     
-    if ((any(F1, P, R) > 1) | any(F1_per_cc>1) | any(P_per_cc>1) | any(R_per_cc>1) ):
+    if ((any([F1, P, R]) > 1) | any(F1_per_cc>1) | any(P_per_cc>1) | any(R_per_cc>1) ):
         warnings.warn('Metric greater than 1! You have encountered an undetected bug, please, contact antonio.miranda@bsc.es!')
                                             
     return P_per_cc, P, R_per_cc, R, F1_per_cc, F1
