@@ -38,12 +38,12 @@ def format_gs(filepath, output_path, gs_names = ['qid', 'docno']):
 
     '''
     # Check GS format:
-    check = pd.read_csv(filepath, sep='\t', header = None, nrows=1)
+    check = pd.read_csv(filepath, sep='\t', header = 0, nrows=1)
     if check.shape[1] != 2:
         raise ImportError('The GS file does not have 2 columns. Then, it was not imported')
     
     # Import GS
-    gs = pd.read_csv(filepath, sep='\t', header = None, names = gs_names)  
+    gs = pd.read_csv(filepath, sep='\t', header = 0, names = gs_names)  
         
     # Preprocessing
     gs["q0"] = str(0) # column with all zeros (q0) # Columnn needed for the library to properly import the dataframe
