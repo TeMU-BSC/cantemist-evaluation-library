@@ -36,7 +36,7 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
 
     '''
     # Get ANN files in Gold Standard
-    ann_list_gs = ann_gs = list(filter(lambda x: x[-4:] == '.ann', os.listdir(gs_path)))
+    ann_list_gs = list(filter(lambda x: x[-4:] == '.ann', os.listdir(gs_path)))
     
     if subtask=='norm':
         gs = ann_parsing.main(gs_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=True)
@@ -81,9 +81,9 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     for index, val in P_per_cc.items():
         print(str(index) + '\t\t' + str(round(val, 3)))
         print('-----------------------------------------------------')
-    if any(P_per_cc.isna()):
+    '''if any(P_per_cc.isna()):
         warnings.warn('Some documents do not have predicted codes, ' + 
-                      'document-wise Precision not computed for them.')
+                      'document-wise Precision not computed for them.')'''
         
     
     
@@ -93,9 +93,9 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     for index, val in R_per_cc.items():
         print(str(index) + '\t\t' + str(round(val, 3)))
         print('-----------------------------------------------------')
-    if any(R_per_cc.isna()):
+    '''if any(R_per_cc.isna()):
         warnings.warn('Some documents do not have Gold Standard codes, ' + 
-                      'document-wise Recall not computed for them.')
+                      'document-wise Recall not computed for them.')'''
     
     
     print('\n-----------------------------------------------------')
@@ -104,12 +104,12 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     for index, val in F1_per_cc.items():
         print(str(index) + '\t\t' + str(round(val, 3)))
         print('-----------------------------------------------------')
-    if any(P_per_cc.isna()):
+    '''if any(P_per_cc.isna()):
         warnings.warn('Some documents do not have predicted codes, ' + 
                       'document-wise F-score not computed for them.')
     if any(R_per_cc.isna()):
         warnings.warn('Some documents do not have Gold Standard codes, ' + 
-                      'document-wise F-score not computed for them.')
+                      'document-wise F-score not computed for them.')'''
         
     print('\n-----------------------------------------------------')
     print('Micro-average metrics')
@@ -179,6 +179,11 @@ def calculate_metrics(gs, pred, subtask=['ner','norm']):
     else:
         raise Exception('Error! Subtask name not properly set up')
     
+
+    # There are two annotations with two valid codes. Any of the two codes is considered as valid
+    if subtask=='norm':
+        df_sel = several_codes_one_annot(df_sel)
+        
     # True Positives:
     TP_per_cc = (df_sel[df_sel["is_valid"] == True]
                  .groupby("clinical_case")["is_valid"].count())
@@ -222,3 +227,29 @@ def calculate_metrics(gs, pred, subtask=['ner','norm']):
         warnings.warn('Metric greater than 1! You have encountered an undetected bug, please, contact antonio.miranda@bsc.es!')
                                             
     return P_per_cc, P, R_per_cc, R, F1_per_cc, F1
+
+
+def several_codes_one_annot(df_sel):
+    
+    # If any of the two valid codes is predicted, give both as good
+    if any(df_sel.loc[(df_sel['clinical_case']=='cc_onco838.ann') & 
+                  (df_sel['offset'] == '2509 2534')]['is_valid']):
+        df_sel.loc[(df_sel['clinical_case']=='cc_onco838.ann') &
+                   (df_sel['offset'] == '2509 2534'),'is_valid'] = True
+            
+    if any(df_sel.loc[(df_sel['clinical_case']=='cc_onco1057.ann') & 
+                      (df_sel['offset'] == '2791 2831')]['is_valid']):
+        df_sel.loc[(df_sel['clinical_case']=='cc_onco1057.ann') &
+                   (df_sel['offset'] == '2791 2831'),'is_valid'] = True
+        
+    # Remove one of the entries where there are two valid codes
+    df_sel.drop(df_sel.loc[(df_sel['clinical_case']=='cc_onco838.ann') &
+                    (df_sel['offset'] == '2509 2534') & 
+                    (df_sel['code_gs']=='8441/0')].index, inplace=True)
+    
+    df_sel.drop(df_sel.loc[(df_sel['clinical_case']=='cc_onco1057.ann') &
+            (df_sel['offset'] == '2791 2831') & 
+            (df_sel['code_gs']=='8803/3')].index, inplace=True)
+        
+        
+    return df_sel
