@@ -9,6 +9,7 @@ Created on Mon Jun 8 15:22:29 2020
 import pandas as pd
 import ann_parsing
 import warnings
+import os
 
 def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
     return '%s:%s: %s: %s\n' % (filename, lineno, category.__name__, message)
@@ -34,6 +35,9 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     None.
 
     '''
+    # Get ANN files in Gold Standard
+    ann_list_gs = ann_gs = list(filter(lambda x: x[-4:] == '.ann', os.listdir(gs_path)))
+    
     if subtask=='norm':
         gs = ann_parsing.main(gs_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=True)
         pred = ann_parsing.main(pred_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=True)
@@ -63,8 +67,11 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     else:
         raise Exception('Error! Subtask name not properly set up')
 
+    # Remove predictions for files not in Gold Standard
+    pred_gs_subset = pred.loc[pred['clinical_case'].isin(ann_list_gs),:]
     
-    P_per_cc, P, R_per_cc, R, F1_per_cc, F1 = calculate_metrics(gs, pred, 
+    # Compute metrics
+    P_per_cc, P, R_per_cc, R, F1_per_cc, F1 = calculate_metrics(gs, pred_gs_subset, 
                                                                 subtask=subtask)
         
     ###### Show results ######  

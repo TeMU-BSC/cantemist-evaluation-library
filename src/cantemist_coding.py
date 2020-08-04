@@ -56,10 +56,15 @@ def format_gs(filepath, output_path, gs_names = ['qid', 'docno']):
     gs = gs.drop_duplicates(subset=['qid','docno'],  
                             keep='first')  # Keep first of the predictions
 
+    # Get list of qids
+    qid_gs = set(gs.qid.tolist())
+    
     # Write dataframe to Qrel file
     gs.to_csv(output_path, index=False, header=None, sep=' ')
     
-def format_predictions(filepath, output_path, valid_codes, 
+    return qid_gs
+    
+def format_predictions(filepath, output_path, valid_codes, qid_gs,
                        system_name = 'xx', pred_names = ['query','docid']):
     '''
     Load Predictions table, add extra columns to match 
@@ -127,9 +132,11 @@ def format_predictions(filepath, output_path, valid_codes,
     if (pred.shape[0] == 0) & (is_empty == 0):
         warnings.warn('None of the predicted codes are considered valid codes')
   
+    # Remove predictions for queries not in Gold Standard
+    pred_gs_subset = pred.loc[pred['query'].isin(qid_gs),:]
+    
     # Write dataframe to Run file
-    pred.to_csv(output_path, index=False, header=None, sep = '\t')
-
+    pred_gs_subset.to_csv(output_path, index=False, header=None, sep = '\t')
 
 
 def main(gs_path, pred_path, codes_path):
@@ -161,11 +168,11 @@ def main(gs_path, pred_path, codes_path):
     valid_codes = set([x.lower() for x in valid_codes])
     
     ###### 1. Format GS as TrecQrel format: ######
-    format_gs(gs_path, './intermediate_gs_file.txt')
+    qid_gs = format_gs(gs_path, './intermediate_gs_file.txt')
     
     ###### 2. Format predictions as TrecRun format: ######
     format_predictions(pred_path, './intermediate_predictions_file.txt', 
-                       valid_codes)
+                       valid_codes, qid_gs)
     
     
     ###### 3. Calculate MAP ######
