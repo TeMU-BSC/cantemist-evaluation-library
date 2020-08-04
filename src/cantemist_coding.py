@@ -189,3 +189,4 @@ def main(gs_path, pred_path, codes_path):
     ###### 4. Show results ######
     print('\nMAP estimate: {}\n'.format(round(MAP, 3)))
     #print('\n{}'.format(round(MAP, 3)))
+    print('{}|{}'.format(pred_path, round(MAP,3)))

@@ -40,7 +40,7 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     
     if subtask=='norm':
         gs = ann_parsing.main(gs_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=True)
-        pred = ann_parsing.main(pred_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=True)
+        pred = ann_parsing.main(pred_path, ['MORFOLOGIA_NEOPLASIA','MORFOLOGIA-NEOPLASIA'], with_notes=True)
         
         if pred.shape[0] == 0:
             raise Exception('There are not parsed predicted annotations')
@@ -53,7 +53,7 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
                       'start_pos_pred', 'end_pos_pred']
     elif subtask=='ner':
         gs = ann_parsing.main(gs_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=False)
-        pred = ann_parsing.main(pred_path, ['MORFOLOGIA_NEOPLASIA'], with_notes=False)
+        pred = ann_parsing.main(pred_path, ['MORFOLOGIA_NEOPLASIA','MORFOLOGIA-NEOPLASIA'], with_notes=False)
         
         if pred.shape[0] == 0:
             raise Exception('There are not parsed predicted annotations')
@@ -117,6 +117,8 @@ def main(gs_path, pred_path, subtask=['ner','norm']):
     print('\nMicro-average precision = {}\n'.format(round(P, 3)))
     print('\nMicro-average recall = {}\n'.format(round(R, 3)))
     print('\nMicro-average F-score = {}\n'.format(round(F1, 3)))
+    
+    print('{}|{}|{}|{}'.format(pred_path,round(P, 3),round(R, 3),round(F1, 3)))
 
 
 def calculate_metrics(gs, pred, subtask=['ner','norm']):
