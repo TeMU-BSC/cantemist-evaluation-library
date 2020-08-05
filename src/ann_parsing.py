@@ -88,16 +88,16 @@ def parse_one_ann(info, root, filename, relevant_labels, ignore_related=False,
     for line in f:
        splitted = line.split('\t')
        if len(splitted)<3:
-            print('ERROR in {}. Line with less than 3 tabular splits: {}.' +
-                  ' Skipping this file...'.format(root+filename, line))
+            print('ERROR in {}. Line with less than 3 tabular splits: {}.'.format(root+filename, line) +
+                  ' Skipping this file...')
             return info
        if len(splitted)>3:
-            print('ERROR in {}. Line with more than 3 tabular splits: {}.' +
-                  ' Skipping this file...'.format(root+filename, line))
+            print('ERROR in {}. Line with more than 3 tabular splits: {}.'.format(root+filename, line) +
+                  ' Skipping this file...')
             return info
        if (splitted[0][0] == 'T') & (';' in ' '.join(splitted[1].split(' ')[1:])):
-            print('ERROR in {}. Text span with discontinuous annotation: {}.' +
-                  ' Skipping this file...'.format(root+filename, line))
+            print('ERROR in {}. Text span with discontinuous annotation: {}.'.format(root+filename, line) +
+                  ' Skipping this file...')
             return info
         
     ### Parse .ann file ###
