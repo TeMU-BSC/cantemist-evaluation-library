@@ -15,16 +15,19 @@ def read_gs(gs_path):
     gs_data = pd.read_csv(gs_path, sep="\t", names=['clinical_case', 'code'],
                           dtype={'clinical_case': object, 'code':object})
     gs_data.code = gs_data.code.str.lower()
-    #gs_data = gs_data.loc[gs_data['code']!='8000/6',:]
+    gs_data = gs_data.loc[gs_data['code']!='8000/6',:]
     
     return gs_data
 
-def read_run(pred_path, valid_codes):
+def read_run(pred_path, valid_codes, test_files):
     run_data = pd.read_csv(pred_path, sep="\t", names=['clinical_case', 'code'],
                           dtype={'clinical_case': object, 'code':object})
     run_data.code = run_data.code.str.lower()
     run_data = run_data.drop_duplicates()
-    #run_data = run_data.loc[run_data['code']!='8000/6',:]
+    run_data = run_data.loc[run_data['code']!='8000/6',:]
+    
+    # Remove predictions for queries not in Gold Standard
+    run_data = run_data.loc[run_data['clinical_case'].isin(test_files),:]
     
     run_data = run_data[run_data['code'].isin(valid_codes)]
     if (run_data.shape[0] == 0):
@@ -78,27 +81,32 @@ def parse_arguments():
                         help = "path to predictions file")
     parser.add_argument("-c", "--valid_codes_path", required = True, 
                         dest = "codes_path", help = "path to valid codes TSV")
+    parser.add_argument("-f", "--test_files_path", required = True, 
+                    dest = "test_files_path", help = "path to list of valid test files")
     
     args = parser.parse_args()
     gs_path = args.gs_path
     pred_path = args.pred_path
     codes_path = args.codes_path
+    test_files_path = args.test_files_path
    
-    return gs_path, pred_path, codes_path
+    return gs_path, pred_path, codes_path, test_files_path
 
 
 if __name__ == '__main__':
     
-    gs_path, pred_path, codes_path = parse_arguments()
+    gs_path, pred_path, codes_path, test_files_path = parse_arguments()
     
     ###### 0. Load valid codes lists: ######
     valid_codes = set(pd.read_csv(codes_path, sep='\t', header=None, 
                                   usecols=[0])[0].tolist())
     valid_codes = set([x.lower() for x in valid_codes])
     
+    test_files = list(map(lambda x: x.strip(), open(test_files_path).readlines()))
+    
     ###### 1. Load GS and Predictions ######
     df_gs = read_gs(gs_path)
-    df_run = read_run(pred_path, valid_codes)
+    df_run = read_run(pred_path, valid_codes, test_files)
     
     ###### 2. Calculate score ######
     P_per_cc, P, R_per_cc, R, F1_per_cc, F1 = calculate_metrics(df_gs, df_run)
