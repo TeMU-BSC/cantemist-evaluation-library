@@ -143,3 +143,15 @@ MAP estimate: 0.75
 
 ```
 
+
+## Please, cite us:
+
+Miranda-Escalada, A., Farré, E., & Krallinger, M. (2020). Named entity recognition, concept normalization and clinical coding: Overview of the cantemist track for cancer text mining in spanish, corpus, guidelines, methods and results. In Proceedings of the Iberian Languages Evaluation Forum (IberLEF 2020), CEUR Workshop Proceedings.
+
+@inproceedings{miranda2020named,
+  title={Named entity recognition, concept normalization and clinical coding: Overview of the cantemist track for cancer text mining in spanish, corpus, guidelines, methods and results},
+  author={Miranda-Escalada, A and Farr{\'e}, E and Krallinger, M},
+  booktitle={Proceedings of the Iberian Languages Evaluation Forum (IberLEF 2020), CEUR Workshop Proceedings},
+  year={2020}
+}
+
